@@ -15,15 +15,12 @@ public class ProjectileShoot : MonoBehaviour
     void Update()
     {
         if(Input.GetMouseButtonDown(0)){
-            Debug.Log("mouse pressed");
             shootBullet();
         }
     }
 
     private void shootBullet() {
-        print("fireref position is " + fireRef.position);
-        print("gun position is " + transform.position);
         GameObject newBullet = Instantiate(pfBullet,fireRef.position,fireRef.rotation);
-        newBullet.GetComponent<Rigidbody>().velocity = newBullet.transform.rotation*Vector3.forward*10;
+        newBullet.GetComponent<Rigidbody>().velocity = newBullet.transform.rotation*Vector3.forward*10+new Vector3(Random.value,Random.value,Random.value);
     }
 }
