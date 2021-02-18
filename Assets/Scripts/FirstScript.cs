@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class FirstScript : MonoBehaviour
 {
+    public Collider thisCollider;
     private void OnTriggerEnter(Collider other) {
-        Debug.Log("helo other object!");
+        print("in da trash!");
+        Physics.IgnoreCollision(other,thisCollider);
+        Destroy(other.gameObject,0.2f);
     }
 }

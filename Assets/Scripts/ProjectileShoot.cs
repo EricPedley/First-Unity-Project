@@ -24,6 +24,6 @@ public class ProjectileShoot : MonoBehaviour
         print("fireref position is " + fireRef.position);
         print("gun position is " + transform.position);
         GameObject newBullet = Instantiate(pfBullet,fireRef.position,fireRef.rotation);
-        newBullet.GetComponent<Rigidbody>().velocity = fireRef.rotation*Vector3.forward*10;
+        newBullet.GetComponent<Rigidbody>().velocity = newBullet.transform.rotation*Vector3.forward*10;
     }
 }
