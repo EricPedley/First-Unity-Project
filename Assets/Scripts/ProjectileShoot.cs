@@ -82,7 +82,7 @@ public class ProjectileShoot : MonoBehaviour
         }
         float a = Mathf.Sqrt(difSqSumZ/difSqSumX);//equivalent to the ratio of z's standard deviation to x's standard deviation
         float b = meanZ-a*meanX;
-        return Vector2(a,b);
+        return new Vector2(a,b);
     }
     //uses y=f(z) if useZ is true, otherwise uses y=f(x)
     private Vector3 quadReg(LinkedList<Vector3> points,bool useZ = false) {
