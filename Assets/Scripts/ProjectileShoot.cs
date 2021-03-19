@@ -4,6 +4,7 @@ using UnityEngine;
 public class ProjectileShoot : MonoBehaviour
 {
     public GameObject pfBullet;
+    public Transform predIndicator;
     public Transform fireRef;
     private Rigidbody trackedBullet;
     private int deltaCount=0, historyLen=20;
@@ -39,6 +40,10 @@ public class ProjectileShoot : MonoBehaviour
             Debug.Log(posHistory.Count);
             deltaCount=0;
         }
+        float elevation = -0.5f;
+        Vector2 predictedPosition = predictPosition(elevation);
+        if(!float.IsNaN(predictedPosition.magnitude))
+            predIndicator.position=new Vector3(predictedPosition.x,elevation,predictedPosition.y);
     }
 
     private void shootBullet() {
@@ -62,6 +67,7 @@ public class ProjectileShoot : MonoBehaviour
             zero = Mathf.Abs(zero1-posHistory.Last.Value.z)<Mathf.Abs(zero2-posHistory.Last.Value.z) ? zero1:zero2;//chooses the zero closest to the last recorded position of the projectile
             return new Vector2(zero,zero*direction.x/direction.y);//x and z coordinates of where the projectile lands
         } else {
+            //BUG nullReferenceException on following line. Maybe Value.x because it's inserting null vectors in Update?
             zero = Mathf.Abs(zero1-posHistory.Last.Value.x)<Mathf.Abs(zero2-posHistory.Last.Value.x) ? zero1:zero2;//chooses the zero closest to the last recorded position of the projectile
             return new Vector2(zero,zero*direction.y/direction.x);//x and z coordinates of where the projectile lands
         }
@@ -85,11 +91,32 @@ public class ProjectileShoot : MonoBehaviour
         return new Vector2(a,b);
     }
     //uses y=f(z) if useZ is true, otherwise uses y=f(x)
+    //https://www.easycalculation.com/statistics/learn-quadratic-regression.php
     private Vector3 quadReg(LinkedList<Vector3> points,bool useZ = false) {
+        float sumN=0,sumX=0,sumX2=0,sumX3=0,sumX4=0,sumXY=0,sumX2Y=0,sumY=0;
+        foreach(Vector3 p in points) {
+            sumN++;
+            float val;
+            if(useZ) {
+                val=p.z;
+            } else {
+                val=p.x;
+            }
+            sumX+=val;
+            sumX2+=val*val;
+            sumX3+=val*val*val;
+            sumX4+=val*val*val*val;
+            sumY+=p.y;
+            sumXY+=val*p.y;
+            sumX2Y+=val*val*p.y;
+        }
+        float a = (sumX2Y*sumX2-sumXY*sumX3)/(sumX2*sumX4-sumX3*sumX3);
+        float b = (sumXY*sumX4-sumX2Y*sumX3)/(sumX2*sumX4-sumX3*sumX3);
+        float c = (sumY/sumN-b*sumX/sumN)-a*sumX2/sumN;
         //TODO, make this function return a,b, and c for quadratic ax^2+bx+c that fits the data in the points list, but with the x and z coordinates projected along direction
         //alternate idea: don't do the projection and instead just save timestamps on each coord and then do regressions on x,y,and z independently as functions of t.
         //or, instead of y being a function of the projection, make it a function of x or z, based on which changes more
-        return new Vector4();
+        return new Vector3(a,b,c);
     }
 
 }
